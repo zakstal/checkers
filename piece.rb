@@ -46,7 +46,7 @@ class Piece
     end
     moves.uniq
   end
-
+  #move to board
   def empty?(move)
     board[move].nil?
   end
@@ -54,6 +54,7 @@ class Piece
   def jump_move(goal_pos)
     moves     = grow_moves(2)
     valid     = moves.include?(goal_pos)
+    # half position
     sy,sx     = self.pos
     y         = (goal_pos.first > self.pos.first ? 1 : -1)
     x         = (goal_pos.last  > self.pos.last  ? 1 : -1)
@@ -77,9 +78,10 @@ class Piece
 
 
   def valid_move?(goal_pos)
-    raise "That space is off the board" if !on_board?(pos)
-    raise "That space is occupoied" if !empty?(goal_pos)
-    raise "That is not a valid move" if !valid_step?(goal_pos)
+    return false if !on_board?(pos)
+    return false if !empty?(goal_pos)
+    return false if !valid_step?(goal_pos)
+    true
   end
 
 end

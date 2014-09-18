@@ -46,16 +46,23 @@ class Board
   end
 
   def move(move, color)
-    moves = move.split("")
-    start = moves.first(2).map(&:to_i)
-    goal  = moves.last(2).map(&:to_i)
-
-    raise "Wrong color" if !valid_player_color?(start,color)
-    self[start].valid_move?(goal)
+    start, goal  = map_move(move)
+    raise "That spot is empty" if self.empty?(start)
+    raise "Wrong color"        if !valid_player_color?(start,color)
+    raise "Wrong move "        if !self[start].valid_move?(goal)
     self[start], self[goal] = self[goal], self[start]
     self[goal].promote
     self[goal].pos = goal
+    # multi_jump(goal, color)
   end
+
+  def map_move(move)
+    moves = move.split("").map(&:to_i)
+    start = moves.first(2)
+    goal  = moves.last(2)
+    [start,goal]
+  end
+
 
   def pieces
     @rows.flatten.compact
@@ -86,12 +93,37 @@ class Board
   end
 
   def valid_player_color?(move, color)
-    self[move].color == color
+     self[move].color == color
+  end
+
+  def empty?(move)
+    self[move].nil?
+  end
+
+  def dup
+    new_board = Board.new
+
+    pieces.each do |piece|
+      piece.class.new(piece.pos, piece.color, self)
+    end
+
+    new_board
+  end
+
+  def any_jump(start)
+    moves = self[start].grow_moves(2)
+    moves.select{ |move| self[start].valid_move?(move) }
+  end
+
+  def multi_jump(start, color)
+    any_move = any_jump(start)
+    return if any_move.nil?
+    any_move.each do |move|
+      self.move((start + move).to_s, color)
+    end
   end
 
   private
-
-
 
 
   def fill_rows
@@ -131,4 +163,5 @@ class Board
   end
 
 end
+
 

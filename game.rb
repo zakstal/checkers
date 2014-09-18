@@ -21,7 +21,6 @@ class Game
       clear_screen
       board.show
       player  = @turns.next
-      pcolor  = player.color
       puts "It is #{color(player.color)}'s turn"
       make_move(player)
     end
@@ -33,8 +32,9 @@ class Game
   def make_move(player)
     begin
       moves   = player.choose_move
-      board.move(moves,pcolor)
+      board.move(moves,player.color)
     rescue CheckersError => e
+    rescue RuntimeError => e
       puts "#{e}"
       retry
     end
