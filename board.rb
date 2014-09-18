@@ -39,11 +39,13 @@ class Board
 
 
   def initialize(populate = true)
+    @rows = Array.new(8) { Array.new(8)}
 
-    setup_board(populate)
+    fill_rows if populate
+
   end
 
-  def move(move,color)
+  def move(move, color)
     moves = move.split("")
     start = moves.first(2).map(&:to_i)
     goal  = moves.last(2).map(&:to_i)
@@ -51,6 +53,7 @@ class Board
     raise "Wrong color" if !valid_player_color?(start,color)
     self[start].valid_move?(goal)
     self[start], self[goal] = self[goal], self[start]
+    self[goal].promote
     self[goal].pos = goal
   end
 
@@ -59,7 +62,7 @@ class Board
   end
 
   def piece_positions
-    pieces.map{|piece| piece.pos}
+    pieces.map { |piece| piece.pos }
   end
 
 
@@ -68,12 +71,12 @@ class Board
   end
 
 
-  def[](pos)
+  def [](pos)
     y,x = pos
     @rows[y][x]
   end
 
-  def[]=(pos,value)
+  def []=(pos, value)
     y,x = pos
     @rows[y][x] = value
   end
@@ -82,57 +85,50 @@ class Board
 
   end
 
-  def valid_player_color?(move,color)
+  def valid_player_color?(move, color)
     self[move].color == color
   end
 
   private
 
 
-  def setup_board(populate)
-    @rows = Array.new(8) { Array.new(8)}
 
-    return if populate == false
-      fill_rows
-  end
 
   def fill_rows
-    color = [:w,:b]
-    [WHITE,BLACK].each_with_index do |all_pos,index|
+    color = ["○","●"]
+    [WHITE, BLACK].each_with_index do |all_pos, index|
 
       all_pos.each do |pos|
-        place_piece(pos,color[index])
+        place_piece(pos, color[index])
       end
     end
   end
 
-  def place_piece(pos,color)
-    y,x = pos
-     @rows[y][x] = Piece.new(pos,color,self)
+  def place_piece(pos, color)
+    self[pos] = Piece.new(pos, color, self)
   end
 
   def render
-     @rows.map.with_index do |row,row_index|
-
-        render_tiles(row,row_index)
-     end.join("\n")
+    @rows.map.with_index do |row, row_index|
+      render_tiles(row, row_index)
+    end.join("\n")
   end
 
-  def render_tiles(row,row_index)
+  def render_tiles(row, row_index)
     swich = row_index.even? ? 1 : 0
-    row.map.with_index do |cell,cell_index|
-
-        render_tile(cell_index,row_index, swich)
+    row.map.with_index do |cell, cell_index|
+      render_tile(cell_index, row_index, swich)
     end.join("")
   end
 
 
-  def render_tile(cell_index,row_index, swich)
+  def render_tile(cell_index, row_index, swich)
+    y = row_index.to_s.colorize(:light_white )
+    x = cell_index.to_s.colorize(:light_white )
 
-    cell = (self[[row_index,cell_index]].nil? ? "   " : " #{self[[row_index,cell_index]].color} ")
+    cell = (self[[row_index,cell_index]].nil? ? "#{y} #{x}" : "#{y}#{self[[row_index,cell_index]].color}#{x}")
     (cell_index + swich).even? ? cell.colorize(:background => :white) : cell
   end
-
 
 end
 

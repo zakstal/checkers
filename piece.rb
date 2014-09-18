@@ -10,22 +10,22 @@ class Piece
       [ 1, 1]
     ]
 
-  def initialize(pos, color,board)
+  def initialize(pos, color, board)
     @king   = false
     @board  = board
     @pos    = pos
-    @color  = (color == :w ? :w : :b)
-    @delta  = (color == :w ? DELTAS.last(2) : DELTAS.first(2) )
+    @color  = (color == "○" ? "○" : "●")
+    @delta  = (color == "○" ? DELTAS.last(2) : DELTAS.first(2) )
   end
 
-  def promote(pos)
-    self.King = true if pos[y] == 7 && self.color == :w
-    self.King = true if pos[y] == 0 && self.color == :b
+  def promote
+    self.king = true if self.pos == 7 && self.color == "○"
+    self.king = true if self.pos == 0 && self.color == "●"
     @delta = DELTAS
   end
 
   def on_board?(pos)
-    pos.all?{|n| n.between?(0,7)}
+    pos.all? { |n| n.between?(0, 7) }
   end
 
 
@@ -42,13 +42,9 @@ class Piece
         move = [dy + sy, dx + sx]
         temp << move if on_board?(move)
       end
-      moves << temp
+      moves += temp
     end
-    moves.flatten(1).uniq
-  end
-
-  def grow(delta,multi)
-
+    moves.uniq
   end
 
   def empty?(move)
@@ -57,8 +53,6 @@ class Piece
 
   def jump_move(goal_pos)
     moves     = grow_moves(2)
-    p moves
-    p goal_pos
     valid     = moves.include?(goal_pos)
     sy,sx     = self.pos
     y         = (goal_pos.first > self.pos.first ? 1 : -1)
@@ -78,7 +72,7 @@ class Piece
   end
 
   def valid_step?(goal_pos)
-  p jump_move(goal_pos) || step_move(goal_pos)
+   jump_move(goal_pos) || step_move(goal_pos)
   end
 
 
