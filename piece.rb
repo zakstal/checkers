@@ -1,3 +1,4 @@
+require 'colorize'
 
 class Piece
 
@@ -21,6 +22,7 @@ class Piece
   def promote
     self.king = true if self.pos == 7 && self.color == "○"
     self.king = true if self.pos == 0 && self.color == "●"
+    self.color.colorize(:yello)
     @delta = DELTAS
   end
 
@@ -44,14 +46,15 @@ class Piece
       end
       moves += temp
     end
-    moves.uniq
+    moves.uniq.delete(self.pos)
+    moves
   end
   #move to board
   def empty?(move)
     board[move].nil?
   end
 
-  def jump_move(goal_pos)
+  def jump_move?(goal_pos)
     moves     = grow_moves(2)
     valid     = moves.include?(goal_pos)
     # half position
@@ -73,7 +76,7 @@ class Piece
   end
 
   def valid_step?(goal_pos)
-   jump_move(goal_pos) || step_move(goal_pos)
+   jump_move?(goal_pos) || step_move(goal_pos)
   end
 
 
