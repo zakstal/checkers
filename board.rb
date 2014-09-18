@@ -4,21 +4,22 @@ require          'colorize'
 class Board
 
   WHITE = [
-    [0, 0],
-    [0, 2],
-    [0, 4],
-    [0, 6],
+    [0, 1],
+    [0, 3],
+    [0, 5],
+    [0, 7],
 
-    [1, 1],
-    [1, 3],
-    [1, 5],
-    [1, 7],
+    [1, 0],
+    [1, 2],
+    [1, 4],
+    [1, 6],
 
-    [2, 0],
-    [2, 2],
-    [2, 4],
-    [2, 6],
+    [2, 1],
+    [2, 3],
+    [2, 5],
+    [2, 7],
   ]
+
   BLACK = [
     [5, 0],
     [5, 2],
@@ -38,14 +39,61 @@ class Board
 
 
   def initialize(populate = true)
+
     setup_board(populate)
   end
+
+  def move(move,color)
+    moves = move.split("")
+    start = moves.first(2).map(&:to_i)
+    goal  = moves.last(2).map(&:to_i)
+
+    raise "Wrong color" if !valid_player_color?(start,color)
+    self[start].valid_move?(goal)
+    self[start], self[goal] = self[goal], self[start]
+    self[goal].pos = goal
+  end
+
+  def pieces
+    @rows.flatten.compact
+  end
+
+  def piece_positions
+    pieces.map{|piece| piece.pos}
+  end
+
+
+  def show
+    puts render
+  end
+
+
+  def[](pos)
+    y,x = pos
+    @rows[y][x]
+  end
+
+  def[]=(pos,value)
+    y,x = pos
+    @rows[y][x] = value
+  end
+
+  def won?
+
+  end
+
+  def valid_player_color?(move,color)
+    self[move].color == color
+  end
+
+  private
+
 
   def setup_board(populate)
     @rows = Array.new(8) { Array.new(8)}
 
     return if populate == false
-    self.fill_rows
+      fill_rows
   end
 
   def fill_rows
@@ -62,40 +110,6 @@ class Board
     y,x = pos
      @rows[y][x] = Piece.new(pos,color,self)
   end
-
-
-
-  def[](pos)
-    y,x = pos
-    @rows[y][x]
-  end
-
-  def[]=(pos,value)
-    y,x = pos
-    @rows[y][x] = value
-  end
-
-  def move
-    moves = gets.chomp.split("")
-    start = moves.first(2).map(&:to_i)
-    goal = moves.last(2).map(&:to_i)
-
-    self[start].valid_move?(goal)
-  # rescue
- #    puts "Try again"
- #    retry
-    self[start], self[goal] = self[goal], self[start]
-  end
-
-
-  def pieces
-    @rows.flatten.compact
-  end
-
-  def piece_positions
-    pieces.map{|piece| piece.pos}
-  end
-
 
   def render
      @rows.map.with_index do |row,row_index|
@@ -119,14 +133,6 @@ class Board
     (cell_index + swich).even? ? cell.colorize(:background => :white) : cell
   end
 
-
-  def show
-    puts render
-  end
-
-  def out_of_bound?(goal_pos)
-
-  end
 
 end
 

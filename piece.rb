@@ -24,25 +24,18 @@ class Piece
     @delta = DELTAS
   end
 
-  # def forward?(goal_pos)
-#     # white moves up the board or  -1
-#     # black moves down the board or 1
-#     new_pos = (color == :w ? pos[0] - 1 : pos[0] + 1)
-#
-#     y, x = forward_move
-#     raise "Worng direction" if (y + new_pos) >= (goal_pos)
-#     true
-#   end
   def on_board?(pos)
     pos.all?{|n| n.between?(0,7)}
   end
 
 
-  def grow_moves(times)
+  def grow_moves(multi)
     moves = []
+
     @delta.each do |delta|
       temp = [pos]
-      times.times do |i|
+
+      multi.times do |i|
         dy,dx = delta
         sy,sx = temp.last
 
@@ -54,33 +47,45 @@ class Piece
     moves.flatten(1).uniq
   end
 
+  def grow(delta,multi)
+
+  end
+
   def empty?(move)
     board[move].nil?
   end
 
   def jump_move(goal_pos)
     moves     = grow_moves(2)
+    p moves
+    p goal_pos
     valid     = moves.include?(goal_pos)
-    py,px     = self.pos
-    gy,gx     = goal_pos
-    inbetween = [py + gy, px + gx]
-    valid     = !self.board[inbetween].nil? && moves.includ?(goal_pos)
-    raise "Yout cant move there" if !valid
+    sy,sx     = self.pos
+    y         = (goal_pos.first > self.pos.first ? 1 : -1)
+    x         = (goal_pos.last  > self.pos.last  ? 1 : -1)
+    inbetween = [y + sy, x + sx]
+    captured  = !self.board[inbetween].nil? && self.board[inbetween].color != self.color
+
+    if captured && moves.include?(goal_pos)
+      self.board[inbetween] = nil
+      true
+    end
   end
 
   def step_move(goal_pos)
-    moves = grow_moves(2)
+    moves = grow_moves(1)
     moves.include?(goal_pos)
+  end
+
+  def valid_step?(goal_pos)
+  p jump_move(goal_pos) || step_move(goal_pos)
   end
 
 
   def valid_move?(goal_pos)
     raise "That space is off the board" if !on_board?(pos)
     raise "That space is occupoied" if !empty?(goal_pos)
-
-
-
-
+    raise "That is not a valid move" if !valid_step?(goal_pos)
   end
 
 end
