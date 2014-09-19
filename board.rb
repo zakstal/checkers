@@ -56,19 +56,23 @@ class Board
     self[start], self[goal] = self[goal], self[start]
     self[goal].promote
     self[goal].pos = goal
-    p "goal"
-    p goal
-    p is_step_move
+    # p "goal"
+ #    p goal
+ #    p is_step_move
     multi_jump(goal, color) if !is_step_move
   end
 
   def multi_jump(start, color)
-    p "multi #{start}"
-    any_move = any_jump(start)
-    return if any_move.nil?
-    any_move.each do |move|
-      self.move([start, move], color)
+    moves = self[start].grow_moves(2)
+    p moves
+
+    moves.reject! { |move| self[start].step_move(move) }
+    p "this is me #{self[start].pos}"
+    move = moves.select do |move|
+      self[start].jump_move?(move,false) && empty?(move) && self[start].move_forward?(move)
     end
+    return if move.nil?
+    move.each { |m| self.move([start,m],color) }
   end
 
   def any_jump(start)

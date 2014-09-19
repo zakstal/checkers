@@ -54,7 +54,7 @@ class Piece
     board[move].nil?
   end
 
-  def jump_move?(goal_pos)
+  def jump_move?(goal_pos,capture)
     moves     = grow_moves(2)
     valid     = moves.include?(goal_pos)
     # half position
@@ -65,7 +65,7 @@ class Piece
     captured  = !self.board[inbetween].nil? && self.board[inbetween].color != self.color
 
     if captured && moves.include?(goal_pos)
-      self.board[inbetween] = nil
+      self.board[inbetween] = nil if capture
       true
     end
   end
@@ -76,12 +76,20 @@ class Piece
   end
 
   def valid_step?(goal_pos)
-   jump_move?(goal_pos) || step_move(goal_pos)
+   jump_move?(goal_pos,true) || step_move(goal_pos)
   end
 
+  def move_forward?(goal_pos)
+    if self.color == "●"
+      self.pos.first > goal_pos.first unless self.king
+    else
+      self.pos.first < goal_pos.first unless self.king
+    end
+  end
 
   def valid_move?(goal_pos)
     return false if !on_board?(pos)
+    return false if !move_forward?(goal_pos)
     return false if !empty?(goal_pos)
     return false if !valid_step?(goal_pos)
     true
